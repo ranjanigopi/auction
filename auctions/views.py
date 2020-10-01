@@ -3,8 +3,10 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django import forms
 
-from .models import User
+from .models import User, Product
+from .forms.listing import Listing
 
 
 def index(request):
@@ -61,3 +63,27 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
+
+def createlist(request):
+    form = Listing(request.POST or None)
+    if form.is_valid():
+        name = form.cleaned_data['name']
+        category = form.cleaned_data['category']
+        price = form.cleaned_data['current_price']
+        description = form.cleaned_data['description']
+        url = form.cleaned_data['image_url']
+        owner = request.user
+        p = Product(
+            name=name,
+            category=category,
+            current_price=price,
+            description=description,
+            image_url=url,
+            owner=owner
+        )
+        p.save()
+        return HttpResponseRedirect(reverse("index"))
+
+    return render(request, "auctions/createlist.html", {
+        "form": form
+    })

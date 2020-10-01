@@ -1,8 +1,13 @@
 from django.contrib import admin
 
-from .models import Product, Bid, Comment
+from .models import Product, Bid, Comment, Category, User
 
 # Register your models here.
-admin.site.register(Product)
-admin.site.register(Bid)
-admin.site.register(Comment)
+for model in [
+    Product,
+    Bid,
+    Comment,
+    Category,
+    User,
+]:
+    admin.site.register(model)
