@@ -67,19 +67,9 @@ def register(request):
 def createlist(request):
     form = Listing(request.POST or None)
     if form.is_valid():
-        name = form.cleaned_data['name']
-        category = form.cleaned_data['category']
-        price = form.cleaned_data['current_price']
-        description = form.cleaned_data['description']
-        url = form.cleaned_data['image_url']
-        owner = request.user
         p = Product(
-            name=name,
-            category=category,
-            current_price=price,
-            description=description,
-            image_url=url,
-            owner=owner
+            **form.cleaned_data,
+            owner=request.user
         )
         p.save()
         return HttpResponseRedirect(reverse("index"))
