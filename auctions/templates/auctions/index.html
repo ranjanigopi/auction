@@ -1,7 +1,9 @@
-{% extends "auctions/layout.html" %}
-
-{% block body %}
-    <h2>Active Listings</h2>
-
-    TODO
-{% endblock %}
+{% extends "auctions/layout.html" %} {% block body %}
+<h2>Active Listings</h2>
+<hr> {% for active in activeList %}
+<a href="{% url 'listingpage' active.id %}">
+    {% if active.image_url %}
+    <img src="{{ active.image_url }}" width=200> 
+    {% endif %} {{ active | linebreaks }}
+</a>
+<hr> {% endfor %} {% endblock %}

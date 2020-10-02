@@ -15,12 +15,12 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="products")
     current_price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
-    image_url = models.URLField()
+    image_url = models.URLField(null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="products")
     created_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.id}:{self.name} belongs to {self.category} category with price of {self.current_price}"
+        return f"\n Product Name: {self.name} \n Category: {self.category} \n Start Bid: {self.current_price}"
 
 class Bid(models.Model):
     product_id = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="bids")

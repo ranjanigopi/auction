@@ -5,12 +5,18 @@ from django.shortcuts import render
 from django.urls import reverse
 from django import forms
 
-from .models import User, Product
+from .models import User, Product, Category
 from .forms.listing import Listing
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    category = request.GET.get("category")
+    activeList = Product.objects.all()
+    if category is not None:
+        activeList = activeList.filter(category=category)
+    return render(request, "auctions/index.html", {
+        "activeList": activeList
+    })
 
 
 def login_view(request):
@@ -76,4 +82,18 @@ def createlist(request):
 
     return render(request, "auctions/createlist.html", {
         "form": form
+    })
+
+def listingpage(request, product_id):
+    print(Product.objects.get(pk=product_id))
+    return render(request, "auctions/listingpage.html", {
+        "product": Product.objects.get(pk=product_id)
+    })
+
+def watchlist(request):
+    pass
+
+def categories(request):
+    return render(request, "auctions/categories.html", {
+        "categories": Category.objects.all()
     })

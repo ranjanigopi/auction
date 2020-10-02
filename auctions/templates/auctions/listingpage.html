@@ -1,0 +1,22 @@
+{% extends "auctions/layout.html" %} {% block body %}
+<h1>Listing:{{ product.name }}</h1>
+{% if product.image_url %}
+<img src="{{ product.image_url }}" width="200"> {% endif %}
+<div>
+    <button>Add to Watchlist</button>
+    <h4>Description:</h4>
+    {{ product.description}}
+    <h4>Price:$</h4>
+    {{ product.current_price }}
+    <form>
+        <label>Type your bid amount</label>
+        <input type="number" placeholder="Enter bid amount:" min="{{ product.current_price }}">
+    </form>
+</div>
+<input type="submit" value="Bid">
+<h5>More Details:</h5>
+<h6>Created by: {{ product.owner }} {{ product.created_date }}
+</h6>
+
+
+{% endblock %}
