@@ -54,7 +54,7 @@
         {% if not product.open %}
         <h5><em>Listing Closed</em></h5>
         {% endif %}
-        {% if user.id is product.winner.id %}
+        {% if user.is_authenticated and user.id is product.winner.id %}
         <h5>Yay!!! You won the Bid!</h5>
         {% endif %}
     </div>
