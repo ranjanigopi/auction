@@ -37,7 +37,7 @@ def get_title(**kwargs):
 def index(request):
     category = request.GET.get("category")
     closed = bool(request.GET.get("closed"))
-    active_list = Product.objects.filter(open=not closed)
+    active_list = Product.objects.filter(open=not closed).order_by('-created_date')
     if category is not None:
         active_list = active_list.filter(category=category)
     return render(request, "auctions/index.html", {
