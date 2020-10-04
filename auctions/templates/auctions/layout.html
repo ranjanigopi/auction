@@ -15,6 +15,10 @@
     <div class="user-info">
         {% if user.is_authenticated %}
         Signed in as: {{ user.username }}
+        {% if user.is_superuser %}
+        <a href="{% url 'admin:index' %}">Admin</a>
+        |
+        {% endif %}
         <a href="{% url 'logout' %}">Log Out</a>
         {% else %}
         <a href="{% url 'login' %}">Log In</a>
