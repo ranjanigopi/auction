@@ -20,7 +20,7 @@ def get_winner(product):
     maxbid = Bid.objects.filter(product=product).aggregate(max=models.Max("amount"))["max"]
     winner = Bid.objects.filter(product=product, amount=maxbid)
     if len(winner):
-        return winner.user
+        return winner[0].user
     else:
         return None
 
