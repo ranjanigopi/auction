@@ -1,22 +1,95 @@
-{% extends "auctions/layout.html" %} {% block body %}
-<h1>Listing:{{ product.name }}</h1>
-{% if product.image_url %}
-<img src="{{ product.image_url }}" width="200"> {% endif %}
-<div>
-    <button>Add to Watchlist</button>
-    <h4>Description:</h4>
-    {{ product.description}}
-    <h4>Price:$</h4>
-    {{ product.current_price }}
-    <form>
-        <label>Type your bid amount</label>
-        <input type="number" placeholder="Enter bid amount:" min="{{ product.current_price }}">
-    </form>
-</div>
-<input type="submit" value="Bid">
-<h5>More Details:</h5>
-<h6>Created by: {{ product.owner }} {{ product.created_date }}
-</h6>
-
-
+{% extends "auctions/layout.html" %}
+{% load static %}
+{% block page_style %}
+<link href="{% static 'auctions/listingpage.css' %}" rel="stylesheet">
+{% endblock %}
+{% block body %}
+<article class="listing">
+    <h2 class="title">Listing: {{ product.name }}</h2>
+    <div class="actions">
+        {% if user.is_authenticated %}
+        <form method="POST">
+            {% csrf_token %} {% if not is_watching %}
+            <button type="submit" value="add-watchlist" name="action" class="btn btn-primary custom">
+                Add to Watchlist
+            </button>
+            {% else %}
+            <button type="submit" value="remove-watchlist" name="action" class="btn btn-primary custom">
+                Remove from Watchlist
+            </button>
+            {% endif %}
+        </form>
+        {% endif %}
+        {% if user.id is product.owner.id and product.open %}
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" value="close-listing" name="action" class="btn btn-danger margin-left">
+                Close Listing
+            </button>
+        </form>
+        {% endif %}
+    </div>
+    <div class="image-price">
+        <div class="img-container">
+            {% if product.image_url %}
+            <img src="{{ product.image_url }}">
+            {% else %}
+            <img src="https://via.placeholder.com/400/FFFFFF/000000?text=No Image Available">
+            {% endif %}
+        </div>
+        <h4>Price: ${{ product.current_price }}</h4>
+        {% if user.is_authenticated and product.open %}
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <input type="number" name="bidamount" placeholder="Enter bid amount" class="form-control"
+                       min="{{ product.current_price }}"
+                       step="0.01">
+            </div>
+            <button type="submit" value="place-bid" name="action" class="btn btn-primary custom">
+                Place Your Bid
+            </button>
+        </form>
+        {% endif %}
+        {% if not product.open %}
+        <h5><em>Listing Closed</em></h5>
+        {% endif %}
+        {% if user.id is product.winner.id %}
+        <h5>Yay!!! You won the Bid!</h5>
+        {% endif %}
+    </div>
+    <div class="details">
+        <dl class="row">
+            <dt class="col-sm-2">Category</dt>
+            <dd class="col-sm-10">{{ product.category.name }}</dd>
+            <dt class="col-sm-2">Owner</dt>
+            <dd class="col-sm-10">{{ product.owner.username }}</dd>
+            <dt class="col-sm-2">Created on</dt>
+            <dd class="col-sm-10">{{ product.created_date }}</dd>
+        </dl>
+        <div>
+            {{ product.description }}
+        </div>
+    </div>
+    <div class="comments">
+        <h3>Comments</h3>
+        {% if user.is_authenticated %}
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <textarea name="comment" class="form-control max-width-50" placeholder="Enter your comments.."></textarea>
+            </div>
+            <button type="submit" value="add-comment" name="action" class="btn btn-primary custom">
+                Add Comment
+            </button>
+        </form>
+        {% endif %}
+        {% for comment in comments %}
+        <div class="comment">
+            <h6>{{ comment.user.username }}</h6>
+            <p>{{ comment.comment }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</article>
 {% endblock %}

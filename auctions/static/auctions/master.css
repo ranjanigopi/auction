@@ -1,0 +1,89 @@
+:root {
+    --primary: #616161;
+    --secondary: #ffa726;
+    --primary-text: #ffffff;
+    --primary-dark: #373737;
+    --secondary-text: #000000;
+    --secondary-dark: #c77800;
+    /*--light: #f8f9fa;*/
+    /*--dark: #343a40;*/
+}
+
+body {
+    background-color: var(--primary);
+    color: var(--primary-text);
+    margin: 0;
+    padding: 0;
+}
+
+a,
+a:link,
+a:visited,
+a:hover,
+a:focus,
+a:active {
+    color: var(--secondary);
+}
+
+header {
+    display: grid;
+    grid-template-areas:
+        "title . status"
+        "title nav nav";
+    background-color: var(--primary-dark);
+    padding: 15px;
+}
+
+header .title {
+    grid-area: title;
+}
+
+header .user-info {
+    grid-area: status;
+    text-align: right;
+}
+
+header .nav {
+    grid-area: nav;
+}
+
+header ul {
+    justify-content: flex-end;
+}
+
+header li:last-child a {
+    padding-right: 0;
+}
+
+main {
+    padding: 15px;
+}
+
+h2 {
+    margin-bottom: 25px;
+}
+
+.margin-left {
+    margin-left: 15px;
+}
+
+.max-width-50 {
+    max-width: 50%;
+}
+
+.btn.btn-primary.custom {
+    background-color: var(--secondary);
+    border-color: var(--secondary);
+    color: var(--secondary-text);
+}
+
+.btn.btn-primary.custom:active,
+.btn.btn-primary.custom:focus {
+    background-color: var(--secondary-dark);
+    border-color: var(--secondary-dark);
+    color: var(--secondary-text);
+}
+
+.btn.btn-primary.custom:focus {
+    box-shadow: 0 0 0 0.2rem var(--secondary-dark);
+}

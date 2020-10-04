@@ -1,21 +1,49 @@
 from django.contrib.auth import authenticate, login, logout
-from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.db import IntegrityError, models
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from django import forms
 
-from .models import User, Product, Category
 from .forms.listing import Listing
+from .models import User, Product, Category, Watchlist, Bid, Comment
+
+
+def is_watching(user, product):
+    if not user.is_authenticated:
+        return False
+
+    watch_list = Watchlist.objects.filter(product=product, user=user)
+    return bool(len(watch_list))
+
+
+def get_winner(product):
+    maxbid = Bid.objects.filter(product=product).aggregate(max=models.Max("amount"))["max"]
+    winner = Bid.objects.filter(product=product, amount=maxbid)
+    if len(winner):
+        return winner.user
+    else:
+        return None
+
+
+def get_title(**kwargs):
+    if kwargs["category"]:
+        return "Active Listings: " + Category.objects.get(id=kwargs["category"]).name
+    if kwargs["closed"]:
+        return "Closed Listings"
+
+    return "Active Listings"
 
 
 def index(request):
     category = request.GET.get("category")
-    activeList = Product.objects.all()
+    closed = bool(request.GET.get("closed"))
+    active_list = Product.objects.filter(open=not closed)
     if category is not None:
-        activeList = activeList.filter(category=category)
+        active_list = active_list.filter(category=category)
     return render(request, "auctions/index.html", {
-        "activeList": activeList
+        "title": get_title(category=category, closed=closed),
+        "activeList": active_list,
+
     })
 
 
@@ -70,6 +98,7 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
+
 def createlist(request):
     form = Listing(request.POST or None)
     if form.is_valid():
@@ -84,14 +113,45 @@ def createlist(request):
         "form": form
     })
 
+
 def listingpage(request, product_id):
-    print(Product.objects.get(pk=product_id))
+    product = Product.objects.get(pk=product_id)
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "add-watchlist":
+            w = Watchlist(product=product, user=request.user)
+            w.save()
+        elif action == "remove-watchlist":
+            Watchlist.objects.filter(product=product, user=request.user).delete()
+        elif action == "place-bid":
+            amount = float(request.POST.get("bidamount"))
+            b = Bid(product=product, user=request.user, amount=amount)
+            b.save()
+            product.current_price = amount
+            product.save()
+        elif action == "close-listing":
+            product.winner = get_winner(product)
+            product.open = False
+            product.save()
+        elif action == "add-comment":
+            c = Comment(product=product, user=request.user, comment=request.POST["comment"])
+            c.save()
+    comments = Comment.objects.filter(product=product)
     return render(request, "auctions/listingpage.html", {
-        "product": Product.objects.get(pk=product_id)
+        "product": product,
+        "is_watching": is_watching(request.user, product),
+        "comments": comments
     })
 
+
 def watchlist(request):
-    pass
+    watch_list = Watchlist.objects.select_related("product").filter(user=request.user)
+    active_list = list(map(lambda item: item.product, watch_list))
+    return render(request, "auctions/index.html", {
+        "title": "Your Watchlist",
+        "activeList": active_list
+    })
+
 
 def categories(request):
     return render(request, "auctions/categories.html", {
